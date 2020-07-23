@@ -7,8 +7,7 @@
 import pkg_resources
 from impacket import __path__
 
-
-BANNER = "Impacket v{} - Copyright 2020 SecureAuth Corporation\n".format(pkg_resources.get_distribution('impacket').version)
+BANNER = "Impacket - Exchanger.py Fork\n"
 
 def getInstallationPath():
     return 'Impacket Library Installation Path: {}'.format(__path__[0])
