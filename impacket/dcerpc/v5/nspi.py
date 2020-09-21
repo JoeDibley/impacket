@@ -11,6 +11,8 @@
 # Authors:
 #  Arseniy Sharoglazov <mohemiv@gmail.com> / Positive Technologies (https://www.ptsecurity.com/)
 #
+# Tested for MS-OXNSPI, some operation may not work for MS-NSPI
+#
 # ToDo:
 # [ ] Test commented NDRCALLs and write helpers for them
 # [ ] Test restriction structures
@@ -1192,18 +1194,6 @@ def hNspiSeekEntries(dce, handler, displayName, ContainerID=0, SortType=0, \
         request['pPropTags'] = pPropTagsRaw
 
     resp = dce.request(request)
-    return resp
-
-def hRfrGetFQDNFromServerDN(dce, szMailboxServerDN):
-    szMailboxServerDN = checkNullString(szMailboxServerDN)
-    request = RfrGetFQDNFromServerDN()
-    request['ulFlags'] = 0
-    request['szMailboxServerDN'] = szMailboxServerDN
-    request['cbMailboxServerDN'] = len(szMailboxServerDN)
-
-    resp = dce.request(request)
-    resp['ppszServerFQDN'] = resp['ppszServerFQDN'][:-1]
-
     return resp
 
 def hNspiDNToMId(dce, handler, pNames=[]):

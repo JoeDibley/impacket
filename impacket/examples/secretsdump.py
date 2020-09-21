@@ -82,7 +82,7 @@ from impacket.krb5 import constants
 from impacket.krb5.crypto import string_to_key
 try:
     from Cryptodome.Cipher import DES, ARC4, AES
-    from Cryptodome.Hash import HMAC, MD4
+    from Cryptodome.Hash import HMAC, MD4, MD5
 except ImportError:
     LOG.critical("Warning: You don't have any crypto installed. You need pycryptodomex")
     LOG.critical("See https://pypi.org/project/pycryptodomex/")
@@ -1300,7 +1300,7 @@ class LSASecrets(OfflineRegistry):
 
     def __decryptSecret(self, key, value):
         # [MS-LSAD] Section 5.1.2
-        plainText = ''
+        plainText = b''
 
         encryptedSecretSize = unpack('<I', value[:4])[0]
         value = value[len(value)-encryptedSecretSize:]
@@ -1322,7 +1322,7 @@ class LSASecrets(OfflineRegistry):
         return secret['Secret']
 
     def __decryptHash(self, key, value, iv):
-        hmac_md5 = HMAC.new(key,iv,digestmod=hashlib.md5)
+        hmac_md5 = HMAC.new(key,iv,MD5)
         rc4key = hmac_md5.digest()
 
         rc4 = ARC4.new(rc4key)

@@ -8,15 +8,26 @@
 # Author:
 #  Arseniy Sharoglazov <mohemiv@gmail.com> / Positive Technologies (https://www.ptsecurity.com/)
 #
-# TODO: Add description
+# Description:
+#  A tool for connecting to MS Exchange via RPC over HTTP v2
+#
+# Notes about -rpc-hostname:
+#  Our RPC over HTTP v2 implementation tries to extract the
+#  target's NetBIOS name via NTLMSSP and use it as RPC Server name.
+#  If it fails, you have to manually get the target RPC Server name
+#  from the Autodiscover service and set it in the -rpc-hostname parameter.
+#
+# References:
+#  https://swarm.ptsecurity.com/attacking-ms-exchange-web-interfaces/
+#
 
 from __future__ import print_function
-import sys
 import base64
 import codecs
 import logging
 import argparse
 import binascii
+import sys
 from six import PY3
 
 from impacket import uuid, version
@@ -32,6 +43,7 @@ from impacket.dcerpc.v5.rpch import RPC_PROXY_REMOTE_NAME_NEEDED_ERR, \
     RPC_PROXY_CONN_A1_404_ERR, RPC_PROXY_RPC_OUT_DATA_404_ERR, \
     RPC_PROXY_CONN_A1_401_ERR
 
+PY37ORHIGHER = sys.version_info >= (3, 7)
 PR_CONTAINER_FLAGS       = 0x36000003
 PR_ENTRYID               = 0x0fff0102
 PR_DEPTH                 = 0x30050003
@@ -360,7 +372,7 @@ class NSPIAttacks(Exchanger):
                     print("Name: %s" % self.htable[MId]['name'])
                     print("Guid: %s" % uuid.bin_to_string(self.htable[MId]['guid']).lower())
                     print("Parent guid: %s" % uuid.bin_to_string(self.htable[MId]['parent_guid']).lower())
-                    dword = _int_to_dword(MId) if MId < 0 else MId
+                    dword = NSPIAttacks._int_to_dword(MId) if MId < 0 else MId
                     print("Assigned MId: 0x%.08X (%d)" % (dword, MId))
                     flags = parse_bitmask(PR_CONTAINER_FLAGS_VALUES, self.htable[MId]['flags'])
                     print("Flags: %s" % flags)
@@ -869,7 +881,7 @@ if __name__ == '__main__':
     group = parser.add_argument_group('authentication')
     group.add_argument('-hashes', action="store", metavar = "LMHASH:NTHASH", help='NTLM hashes, format is LMHASH:NTHASH')
 
-    if PY3:
+    if PY37ORHIGHER:
         subparsers = parser.add_subparsers(help='A module name', dest='module', required=True)
     else:
         subparsers = parser.add_subparsers(help='A module name', dest='module')
@@ -878,7 +890,7 @@ if __name__ == '__main__':
     nspi_parser = subparsers.add_parser('nspi', help='Attack NSPI interface')
 
     # Attacks for NSPI protocol
-    if PY3:
+    if PY37ORHIGHER:
         nspi_attacks = nspi_parser.add_subparsers(help='A submodule name', dest='submodule', required=True)
     else:
         nspi_attacks = nspi_parser.add_subparsers(help='A submodule name', dest='submodule')
